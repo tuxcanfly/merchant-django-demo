@@ -29,15 +29,14 @@
                                  <li class="dropdown">
                                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Card <b class="caret"></b></a>
                                      <ul class="dropdown-menu" id="swatch-menu">
-                                         <li><a href="{% url 'app.views.authorize' %}">Authorize</a></li>
-                                         <li><a href="{% url 'app.views.eway' %}">Eway</a></li>
-                                         <li><a href="{% url 'app.views.paypal' %}">Paypal</a></li>
-                                         <li><a href="{% url 'app.views.braintree' %}">Braintree Payments (S2S)</a></li>
-                                         <li><a href="{% url 'app.views.stripe' %}">Stripe Payment</a></li>
-                                         <li><a href="{% url 'app.views.paylane' %}">Paylane</a></li>
-                                         <li><a href="{% url 'app.views.we_pay' %}">WePay</a></li>
-                                         <li><a href="{% url 'app.views.beanstream' %}">Beanstream</a></li>
-                                         <li><a href="{% url 'app.views.chargebee' %}">Chargebee</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='authorize' %}">Authorize</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='eway' %}">Eway</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='braintree_payments' %}">Braintree Payments (S2S)</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='stripe' %}">Stripe Payment</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='paylane' %}">Paylane</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='we_pay' %}">WePay</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='beanstream' %}">Beanstream</a></li>
+                                         <li><a href="{% url 'app.views.payment' gateway='chargebee' %}">Chargebee</a></li>
                                      </ul>
                                  </li>
                              </ul>
