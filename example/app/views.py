@@ -118,8 +118,12 @@ class MerchantFormView(FormView):
             merchant.validate_card(credit_card)
             args = GATEWAY_SETTINGS.get(self.gateway, {}).get('args', ())
             kwargs = GATEWAY_SETTINGS.get(self.gateway, {}).get('kwargs', {})
-            merchant.purchase(self.amount, credit_card, *args, **kwargs)
-            messages.success(self.request, "Transcation successful")
+            response = merchant.purchase(self.amount, credit_card, *args, **kwargs)
+            if response["status"]:
+                messages.success(self.request, "Transcation successful")
+            else:
+                messages.error(self.request, "Transcation declined")
+                return self.form_invalid(form)
         except CardNotSupported:
             messages.error(self.request, "Credit Card Not Supported")
             return self.form_invalid(form)
