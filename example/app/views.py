@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.sites.models import RequestSite
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -37,15 +38,14 @@ class MerchantFormView(FormView):
     }
     success_url = '/invoice'
     template_name = 'app/index.html'
+
     amount = 1
     gateway = "authorize_net"
-    response = None
 
     def get_context_data(self, **kwargs):
         context = super(MerchantFormView, self).get_context_data(**kwargs)
         context.update({
             'title': 'Authorize',
-            'response': self.response,
             'amount': self.amount
         })
         return context
@@ -56,9 +56,10 @@ class MerchantFormView(FormView):
         merchant = get_gateway(self.gateway)
         try:
             merchant.validate_card(credit_card)
+            messages.success(self.request, "Transcation successful")
         except CardNotSupported:
-            self.response = "Credit Card Not Supported"
-        self.response = merchant.purchase(self.amount, credit_card)
+            messages.error(self.request, "Credit Card Not Supported")
+            return self.forms_invalid(form)
         return super(MerchantFormView, self).form_valid(form)
 
 

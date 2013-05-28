@@ -26,8 +26,8 @@ YEAR_CHOICES = [(y, y) for y in range(today.year, today.year + 21)]
 
 
 class CreditCardForm(forms.Form):
-    first_name = forms.CharField(required=False)
-    last_name = forms.CharField(required=False)
+    first_name = forms.CharField()
+    last_name = forms.CharField()
     month = forms.ChoiceField(choices=MONTH_CHOICES)
     year = forms.ChoiceField(choices=YEAR_CHOICES)
     number = forms.CharField()
