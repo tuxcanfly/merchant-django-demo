@@ -47,6 +47,22 @@ GATEWAY_SETTINGS = {
     'paylane': {
         'initial': {
             'number': '4111111111111111',
+        },
+        'kwargs': {
+            'options': {
+                'customer': PaylanePaymentCustomer(
+                                name='John Doe',
+                                email="test@example.com",
+                                ip_address="127.0.0.1",
+                                address=PaylanePaymentCustomerAddress(
+                                            street_house='Av. 24 de Julho, 1117',
+                                            city='Lisbon',
+                                            zip_code='1700-000',
+                                            country_code='PT',
+                                         )
+                            ),
+                'product': {}
+            }
         }
     },
     'beanstream': {
@@ -59,7 +75,8 @@ GATEWAY_SETTINGS = {
     'chargebee': {
         'initial': {
             'number': '4111111111111111',
-        }
+        },
+        'args': ({"plan_id": "professional", "description": "Quick Purchase"},)
     }
 }
 
@@ -99,6 +116,9 @@ class MerchantFormView(FormView):
         merchant = get_gateway(self.gateway)
         try:
             merchant.validate_card(credit_card)
+            args = GATEWAY_SETTINGS.get(self.gateway, {}).get('args', ())
+            kwargs = GATEWAY_SETTINGS.get(self.gateway, {}).get('kwargs', {})
+            merchant.purchase(self.amount, credit_card, *args, **kwargs)
             messages.success(self.request, "Transcation successful")
         except CardNotSupported:
             messages.error(self.request, "Credit Card Not Supported")
