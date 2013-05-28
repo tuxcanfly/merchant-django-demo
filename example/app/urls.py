@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = patterns('app.views',
     url(r'^$', 'index', name='app_index'),
+    url(r'^invoice$', 'invoice', name='app_invoice'),
     url(r'^authorize/$', 'authorize', name='app_authorize'),
     url(r'^paypal/$', 'paypal', name='app_paypal'),
     url(r'^eway/$', 'eway', name='app_eway'),

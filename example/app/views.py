@@ -6,8 +6,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
+from django.views.generic import FormView, TemplateView
 
-from merchant import CreditCard, get_gateway, get_integration
+from merchant import CreditCard
+from merchant.contrib.django.billing import get_gateway, get_integration
 from merchant.gateway import CardNotSupported
 from merchant.utils.paylane import (
     PaylanePaymentCustomer,
@@ -21,27 +23,43 @@ def index(request, gateway=None):
     return authorize(request)
 
 
-def authorize(request):
+class MerchantFormView(FormView):
+
+    form_class = CreditCardForm
+    initial = {'number': '4222222222222'}
+    success_url = '/invoice'
+    template_name = 'app/index.html'
     amount = 1
+    gateway = "authorize_net"
     response = None
-    if request.method == 'POST':
-        form = CreditCardForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            credit_card = CreditCard(**data)
-            merchant = get_gateway("authorize_net")
-            try:
-                merchant.validate_card(credit_card)
-            except CardNotSupported:
-                response = "Credit Card Not Supported"
-            response = merchant.purchase(amount, credit_card)
-            #response = merchant.recurring(amount, credit_card)
-    else:
-        form = CreditCardForm(initial={'number': '4222222222222'})
-    return render(request, 'app/index.html', {'form': form,
-                                              'amount': amount,
-                                              'response': response,
-                                              'title': 'Authorize'})
+
+    def get_context_data(self, **kwargs):
+        context = super(MerchantFormView, self).get_context_data(**kwargs)
+        context.update({
+            'title': 'Authorize',
+            'response': self.response,
+            'amount': self.amount
+        })
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        credit_card = CreditCard(**data)
+        merchant = get_gateway(self.gateway)
+        try:
+            merchant.validate_card(credit_card)
+        except CardNotSupported:
+            self.response = "Credit Card Not Supported"
+        self.response = merchant.purchase(self.amount, credit_card)
+        return super(MerchantFormView, self).form_valid(form)
+
+
+class MerchantInvoiceView(TemplateView):
+    template_name = 'app/invoice.html'
+
+
+authorize = MerchantFormView.as_view()
+invoice = MerchantInvoiceView.as_view()
 
 
 def paypal(request):
