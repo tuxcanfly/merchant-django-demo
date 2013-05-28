@@ -30,9 +30,9 @@ class CreditCardForm(forms.Form):
     last_name = forms.CharField(required=False)
     month = forms.ChoiceField(choices=MONTH_CHOICES)
     year = forms.ChoiceField(choices=YEAR_CHOICES)
-    number = forms.CharField(required=False)
-    card_type = forms.ChoiceField(choices=CARD_TYPES, required=False)
-    verification_value = forms.CharField(label='CVV', required=False)
+    number = forms.CharField()
+    card_type = forms.ChoiceField(choices=CARD_TYPES)
+    verification_value = forms.CharField(label='CVV')
 
     def clean(self):
         data = self.cleaned_data

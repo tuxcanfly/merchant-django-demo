@@ -26,7 +26,15 @@ def index(request, gateway=None):
 class MerchantFormView(FormView):
 
     form_class = CreditCardForm
-    initial = {'number': '4222222222222'}
+    initial = {
+        'first_name': 'John',
+        'last_name': 'Doe',
+        'month': '06',
+        'year': '2020',
+        'number': '4222222222222',
+        'card_type': 'visa',
+        'verification_value': '100'
+    }
     success_url = '/invoice'
     template_name = 'app/index.html'
     amount = 1
