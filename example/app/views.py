@@ -81,7 +81,7 @@ GATEWAY_SETTINGS = {
 }
 
 
-class MerchantFormView(FormView):
+class PaymentGatewayFormView(FormView):
 
     form_class = CreditCardForm
     initial = {
@@ -98,14 +98,14 @@ class MerchantFormView(FormView):
     amount = 1
 
     def dispatch(self, *args, **kwargs):
-        self.gateway = kwargs.get('gateway', 'authorize_net')
+        self.gateway = get_gateway(kwargs.get('gateway', 'authorize_net'))
         self.initial.update(GATEWAY_SETTINGS.get(self.gateway, {}).get('initial', {}))
-        return super(MerchantFormView, self).dispatch(*args, **kwargs)
+        return super(PaymentGatewayFormView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(MerchantFormView, self).get_context_data(**kwargs)
+        context = super(PaymentGatewayFormView, self).get_context_data(**kwargs)
         context.update({
-            'title': self.gateway,
+            'gateway': self.gateway,
             'amount': self.amount
         })
         return context
@@ -113,12 +113,11 @@ class MerchantFormView(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         credit_card = CreditCard(**data)
-        merchant = get_gateway(self.gateway)
         try:
-            merchant.validate_card(credit_card)
+            self.gateway.validate_card(credit_card)
             args = GATEWAY_SETTINGS.get(self.gateway, {}).get('args', ())
             kwargs = GATEWAY_SETTINGS.get(self.gateway, {}).get('kwargs', {})
-            response = merchant.purchase(self.amount, credit_card, *args, **kwargs)
+            response = self.gateway.purchase(self.amount, credit_card, *args, **kwargs)
             if response["status"]:
                 messages.success(self.request, "Transcation successful")
             else:
@@ -127,12 +126,30 @@ class MerchantFormView(FormView):
         except CardNotSupported:
             messages.error(self.request, "Credit Card Not Supported")
             return self.form_invalid(form)
-        return super(MerchantFormView, self).form_valid(form)
+        return super(PaymentGatewayFormView, self).form_valid(form)
 
 
-class MerchantInvoiceView(TemplateView):
+class PaymentIntegrationFormView(TemplateView):
+    template_name = 'app/stripe.html'
+
+    def dispatch(self, *args, **kwargs):
+        self.integration = get_integration(kwargs.get('integration', 'stripe'))
+        from app.urls import urlpatterns
+        urlpatterns += self.integration.urls
+        return super(PaymentIntegrationFormView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PaymentIntegrationFormView, self).get_context_data(**kwargs)
+        context.update({
+            'integration': self.integration,
+        })
+        return context
+
+
+class InvoiceView(TemplateView):
     template_name = 'app/invoice.html'
 
 
-payment = MerchantFormView.as_view()
-invoice = MerchantInvoiceView.as_view()
+gateway = PaymentGatewayFormView.as_view()
+integration = PaymentIntegrationFormView.as_view()
+invoice = InvoiceView.as_view()
