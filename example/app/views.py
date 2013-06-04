@@ -3,8 +3,7 @@ import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import RequestSite
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.views.generic import FormView, TemplateView
@@ -104,13 +103,13 @@ class PaymentGatewayFormView(FormView):
         'card_type': 'visa',
         'verification_value': '000'
     }
-    success_url = '/invoice'
-    template_name = 'app/index.html'
+    success_url = reverse_lazy("app_invoice")
+    template_name = 'app/gateway.html'
 
     amount = 1
 
     def dispatch(self, *args, **kwargs):
-        self.gateway = get_gateway(kwargs.get('gateway', 'authorize_net'))
+        self.gateway = get_gateway(kwargs.get('gateway', 'authorize_net'), module_path="merchant.gateways")
         self.initial.update(GATEWAY_SETTINGS.get(self.gateway, {}).get('initial', {}))
         return super(PaymentGatewayFormView, self).dispatch(*args, **kwargs)
 
@@ -142,7 +141,7 @@ class PaymentGatewayFormView(FormView):
 
 
 class PaymentIntegrationFormView(TemplateView):
-    template_name = 'app/stripe.html'
+    template_name = 'app/integration.html'
 
     def dispatch(self, *args, **kwargs):
         self.integration = get_integration(kwargs.get('integration', 'stripe'), module_path="app.integrations")
