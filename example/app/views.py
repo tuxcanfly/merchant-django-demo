@@ -80,6 +80,18 @@ GATEWAY_SETTINGS = {
     }
 }
 
+INTEGRATION_SETTINGS = {
+    'stripe': {
+        'initial': {
+            'amount': 1,
+            'credit_card_number': '4222222222222',
+            'credit_card_cvc': '100',
+            'credit_card_expiration_month': '01',
+            'credit_card_expiration_year': '2020'
+        }
+    },
+}
+
 
 class PaymentGatewayFormView(FormView):
 
@@ -133,7 +145,7 @@ class PaymentIntegrationFormView(TemplateView):
     template_name = 'app/stripe.html'
 
     def dispatch(self, *args, **kwargs):
-        self.integration = get_integration(kwargs.get('integration', 'stripe'))
+        self.integration = get_integration(kwargs.get('integration', 'stripe'), module_path="app.integrations")
         from app.urls import urlpatterns
         urlpatterns += self.integration.urls
         return super(PaymentIntegrationFormView, self).dispatch(*args, **kwargs)
