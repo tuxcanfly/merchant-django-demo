@@ -135,6 +135,16 @@ INTEGRATION_SETTINGS = {
             }],
             'return_url': 'http://127.0.0.1:8000/invoice'
         }
+    },
+
+    'amazon_fps': {
+        'initial': {
+            "transactionAmount": "100",
+            "pipelineName": "SingleUse",
+            "paymentReason": "Merchant Test",
+            "paymentPage": "http://127.0.0.1:8000/integration/amazon_fps/",
+            "returnURL": 'http://127.0.0.1:8000/invoice'
+        }
     }
 }
 
