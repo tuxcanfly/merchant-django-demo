@@ -145,6 +145,14 @@ INTEGRATION_SETTINGS = {
             "paymentPage": "http://127.0.0.1:8000/integration/amazon_fps/",
             "returnURL": 'http://127.0.0.1:8000/invoice'
         }
+    },
+
+    'eway_au': {
+        'post_init': lambda i: i.request_access_code(
+            return_url="http://127.0.0.1:8000/invoice",
+            customer={},
+            payment={"total_amount": 100}
+        )
     }
 }
 
@@ -205,6 +213,9 @@ class PaymentIntegrationFormView(TemplateView):
     def dispatch(self, *args, **kwargs):
         integration_key = kwargs.get('integration', 'stripe')
         self.integration = get_integration(integration_key, module_path="app.integrations")
+
+        if integration_key in INTEGRATION_SETTINGS and "post_init" in INTEGRATION_SETTINGS[integration_key]:
+            print INTEGRATION_SETTINGS[integration_key]["post_init"](self.integration)
 
         #  monkey see, monkey patch
         from app.urls import urlpatterns
