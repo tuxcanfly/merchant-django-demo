@@ -97,6 +97,45 @@ INTEGRATION_SETTINGS = {
             'x_recurring_bill': 'F',
         }
     },
+
+    'paypal': {
+        'initial': {
+            'amount_1': 1,
+            'item_name_1': "Item 1",
+            'amount_2': 2,
+            'item_name_2': "Item 2",
+            'invoice': datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
+            #'notify_url': reverse_lazy('app_offsite_paypal_done'),
+            #'return_url': reverse_lazy(''),
+            #'cancel_return': reverse_lazy('paypal-ipn'),
+        }
+    },
+
+    'google_checkout': {
+        'initial': {
+            'items': [{
+                        'amount': 1,
+                        'name': 'name of the item',
+                        'description': 'Item description',
+                        'id': '999AXZ',
+                        'currency': 'USD',
+                        'quantity': 1,
+                        "subscription": {
+                        "type": "merchant",                     # valid choices is ["merchant", "google"]
+                        "period": "YEARLY",                     # valid choices is ["DAILY", "WEEKLY", "SEMI_MONTHLY", "MONTHLY", "EVERY_TWO_MONTHS"," QUARTERLY", "YEARLY"]
+                        "payments": [{
+                                "maximum-charge": 9.99,         # Item amount must be "0.00"
+                                "currency": "USD"
+                        }]
+                    },
+                    "digital-content": {
+                        "display-disposition": "OPTIMISTIC",    # valid choices is ['OPTIMISTIC', 'PESSIMISTIC']
+                        "description": "Congratulations! Your subscription is being set up."
+                    },
+            }],
+            'return_url': 'http://127.0.0.1:8000/invoice'
+        }
+    }
 }
 
 
