@@ -109,8 +109,10 @@ class PaymentGatewayFormView(FormView):
     amount = 1
 
     def dispatch(self, *args, **kwargs):
-        self.gateway = get_gateway(kwargs.get('gateway', 'authorize_net'), module_path="merchant.gateways")
-        self.initial.update(GATEWAY_SETTINGS.get(self.gateway, {}).get('initial', {}))
+        gateway_key = kwargs.get("gateway", "authorize_net")
+        self.gateway = get_gateway(gateway_key, module_path="merchant.gateways")
+        if gateway_key in GATEWAY_SETTINGS and "initial" in GATEWAY_SETTINGS[gateway_key]:
+            self.initial.update(GATEWAY_SETTINGS[gateway_key]["initial"])
         return super(PaymentGatewayFormView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
