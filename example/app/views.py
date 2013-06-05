@@ -89,6 +89,14 @@ INTEGRATION_SETTINGS = {
             'credit_card_expiration_year': '2020'
         }
     },
+    'authorize_net_dpm': {
+        'initial': {
+            'x_amount': 1,
+            'x_fp_sequence': datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
+            'x_fp_timestamp': datetime.datetime.now().strftime('%s'),
+            'x_recurring_bill': 'F',
+        }
+    },
 }
 
 
@@ -146,9 +154,17 @@ class PaymentIntegrationFormView(TemplateView):
     template_name = 'app/integration.html'
 
     def dispatch(self, *args, **kwargs):
-        self.integration = get_integration(kwargs.get('integration', 'stripe'), module_path="app.integrations")
+        integration_key = kwargs.get('integration', 'stripe')
+        self.integration = get_integration(integration_key, module_path="app.integrations")
+
+        #  monkey see, monkey patch
         from app.urls import urlpatterns
         urlpatterns += self.integration.urls
+
+        initial = {}
+        if integration_key in INTEGRATION_SETTINGS and "initial" in INTEGRATION_SETTINGS[integration_key]:
+            initial.update(INTEGRATION_SETTINGS[integration_key]["initial"])
+        self.integration.add_fields(initial)
         return super(PaymentIntegrationFormView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
