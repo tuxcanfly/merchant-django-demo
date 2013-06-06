@@ -1,5 +1,6 @@
 import datetime
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from merchant.utils.paylane import (
     PaylanePaymentCustomer,
@@ -86,7 +87,17 @@ INTEGRATION_SETTINGS = {
             'x_fp_sequence': datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
             'x_fp_timestamp': datetime.datetime.now().strftime('%s'),
             'x_recurring_bill': 'F',
-        }
+            'x_card_num': '4007000000027',
+            'x_exp_date': '01/20',
+            'x_card_code': '100',
+            'x_first_name': 'John',
+            'x_last_name': 'Doe',
+            'x_address': '100, Spooner Street, Springfield',
+            'x_city': 'San Francisco',
+            'x_state': 'California',
+            'x_zip': '90210',
+            'x_country': 'United States'
+        },
     },
 
     'paypal': {
@@ -96,9 +107,9 @@ INTEGRATION_SETTINGS = {
             'amount_2': 2,
             'item_name_2': "Item 2",
             'invoice': datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
-            #'notify_url': reverse_lazy('app_offsite_paypal_done'),
-            #'return_url': reverse_lazy(''),
-            #'cancel_return': reverse_lazy('paypal-ipn'),
+            'return_url': '{HOST}/invoice'.format(HOST=HOST),
+            'cancel_return': '{HOST}/invoice'.format(HOST=HOST),
+            'notify_url': '{HOST}/merchant/paypal/ipn'.format(HOST=HOST),
         }
     },
 
