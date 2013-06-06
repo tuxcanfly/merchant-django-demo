@@ -153,6 +153,19 @@ INTEGRATION_SETTINGS = {
             customer={},
             payment={"total_amount": 100}
         )
+    },
+
+    "braintree_payments": {
+        'initial': {
+            "transaction": {
+                "order_id": datetime.datetime.now().strftime("%Y%m%d%H%M%S"),
+                "type": "sale",
+                "options": {
+                    "submit_for_settlement": True
+                },
+            },
+            "site": "http://127.0.0.1:8000"
+        }
     }
 }
 
