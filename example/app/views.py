@@ -166,6 +166,19 @@ INTEGRATION_SETTINGS = {
             },
             "site": "http://127.0.0.1:8000"
         }
+    },
+
+    "ogone_payments": {
+        "initial": {
+            'orderID': datetime.datetime.now().strftime("%Y%m%d%H%M%S"),
+            'currency': u'INR',
+            'amount': u'10000',  # Rs. 100.00
+            'language': 'en_US',
+            'exceptionurl': "http://127.0.0.1:8000",
+            'declineurl': "http://127.0.0.1:8000",
+            'cancelurl': "http://127.0.0.1:8000",
+            'accepturl': "http://127.0.0.1:8000",
+        }
     }
 }
 
