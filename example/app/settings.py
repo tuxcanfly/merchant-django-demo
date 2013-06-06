@@ -150,6 +150,13 @@ INTEGRATION_SETTINGS = {
     },
 
     'eway_au': {
+        'initial': {
+            'EWAY_CARDNAME': 'John Doe',
+            'EWAY_CARDNUMBER': '4444333322221111',
+            'EWAY_CARDMONTH': '01',
+            'EWAY_CARDYEAR': '2020',
+            'EWAY_CARDCVN': '100',
+        },
         'post_init': lambda i: i.request_access_code(
             return_url="{HOST}:8000/invoice".format(HOST=HOST),
             customer={},
