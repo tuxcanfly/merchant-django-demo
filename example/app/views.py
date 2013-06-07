@@ -30,10 +30,10 @@ class PaymentGatewayFormView(FormView):
     amount = 1
 
     def dispatch(self, *args, **kwargs):
-        gateway_key = kwargs.get("gateway", "authorize_net")
-        self.gateway = get_gateway(gateway_key, module_path="merchant.gateways")
-        if gateway_key in GATEWAY_SETTINGS and "initial" in GATEWAY_SETTINGS[gateway_key]:
-            self.initial.update(GATEWAY_SETTINGS[gateway_key]["initial"])
+        self.gateway_key = kwargs.get("gateway", "authorize_net")
+        self.gateway = get_gateway(self.gateway_key, module_path="merchant.gateways")
+        if self.gateway_key in GATEWAY_SETTINGS and "initial" in GATEWAY_SETTINGS[self.gateway_key]:
+            self.initial.update(GATEWAY_SETTINGS[self.gateway_key]["initial"])
         return super(PaymentGatewayFormView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -49,8 +49,8 @@ class PaymentGatewayFormView(FormView):
         credit_card = CreditCard(**data)
         try:
             self.gateway.validate_card(credit_card)
-            args = GATEWAY_SETTINGS.get(self.gateway, {}).get('args', ())
-            kwargs = GATEWAY_SETTINGS.get(self.gateway, {}).get('kwargs', {})
+            args = GATEWAY_SETTINGS.get(self.gateway_key, {}).get('args', ())
+            kwargs = GATEWAY_SETTINGS.get(self.gateway_key, {}).get('kwargs', {})
             response = self.gateway.purchase(self.amount, credit_card, *args, **kwargs)
             if response["status"]:
                 messages.success(self.request, "Transcation successful")
@@ -67,19 +67,19 @@ class PaymentIntegrationFormView(TemplateView):
     template_name = 'app/integration.html'
 
     def dispatch(self, *args, **kwargs):
-        integration_key = kwargs.get('integration', 'stripe')
-        self.integration = get_integration(integration_key, module_path="app.integrations")
+        self.integration_key = kwargs.get('integration', 'stripe')
+        self.integration = get_integration(self.integration_key, module_path="app.integrations")
 
-        if integration_key in INTEGRATION_SETTINGS and "post_init" in INTEGRATION_SETTINGS[integration_key]:
-            print INTEGRATION_SETTINGS[integration_key]["post_init"](self.integration)
+        if self.integration_key in INTEGRATION_SETTINGS and "post_init" in INTEGRATION_SETTINGS[self.integration_key]:
+            print INTEGRATION_SETTINGS[self.integration_key]["post_init"](self.integration)
 
         #  monkey see, monkey patch
         from app.urls import urlpatterns
         urlpatterns += self.integration.urls
 
         initial = {}
-        if integration_key in INTEGRATION_SETTINGS and "initial" in INTEGRATION_SETTINGS[integration_key]:
-            initial.update(INTEGRATION_SETTINGS[integration_key]["initial"])
+        if self.integration_key in INTEGRATION_SETTINGS and "initial" in INTEGRATION_SETTINGS[self.integration_key]:
+            initial.update(INTEGRATION_SETTINGS[self.integration_key]["initial"])
         self.integration.add_fields(initial)
         return super(PaymentIntegrationFormView, self).dispatch(*args, **kwargs)
 
